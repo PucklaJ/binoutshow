@@ -24,7 +24,7 @@
  ************************************************************************************/
 
 #include <binout.h>
-#include <path.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,17 +64,11 @@ int main(int args, char *argv[]) {
   size_t num_children;
   char **children = binout_get_children(&bin_file, path_name, &num_children);
 
-  if (num_children == 0) {
+  if (num_children == 0 || num_children == SIZE_MAX) {
     fprintf(stderr, "path %s has not been found\n", path_name);
     binout_close(&bin_file);
     return 1;
   }
-
-  /* Get the path as path_t */
-  path_t path_object, path_buffer;
-  path_object.elements = path_elements(path_name, &path_object.num_elements);
-  path_buffer.elements = NULL;
-  path_buffer.num_elements = 0;
 
   int max_d_num = -1;
 
@@ -83,9 +77,7 @@ int main(int args, char *argv[]) {
     /* Parse children for special values like metadata and dxxxxxx */
     if (strcmp(children[i], "metadata") == 0) {
       /* Prepare the path */
-      path_copy(&path_buffer, &path_object);
-      path_join(&path_buffer, "metadata");
-      char *path_buffer_str = path_str(&path_buffer);
+      char *path_buffer_str = path_join(path_name, "metadata");
 
       size_t num_metadata;
       char **metadata =
@@ -100,7 +92,7 @@ int main(int args, char *argv[]) {
 
         j++;
       }
-      binout_free_children(metadata, num_metadata);
+      binout_free_children(metadata);
     } else {
       const int d_num = get_d_string_number(children[i]);
       if (d_num != -1) {
@@ -114,15 +106,12 @@ int main(int args, char *argv[]) {
 
     i++;
   }
-  binout_free_children(children, num_children);
+  binout_free_children(children);
 
   /* Now print all dxxxxxx values */
   if (max_d_num != -1) {
     /* Read the children from d000001*/
-    path_free(&path_buffer);
-    path_copy(&path_buffer, &path_object);
-    path_join(&path_buffer, "d000001");
-    char *path_buffer_str = path_str(&path_buffer);
+    char *path_buffer_str = path_join(path_name, "d000001");
 
     size_t num_d_children;
     char **d_children =
@@ -136,11 +125,9 @@ int main(int args, char *argv[]) {
 
       j++;
     }
-    binout_free_children(d_children, num_d_children);
+    binout_free_children(d_children);
   }
 
-  path_free(&path_object);
-  path_free(&path_buffer);
   binout_close(&bin_file);
   return 0;
 }
