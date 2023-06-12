@@ -24,6 +24,7 @@
  ************************************************************************************/
 
 #include <binout.h>
+#include <binout_defines.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +60,193 @@ int main(int args, char *argv[]) {
     free(open_error);
     binout_close(&bin_file);
     return 1;
+  }
+
+  /* If the path is a variable output its contents*/
+  if (binout_variable_exists(&bin_file, path_name)) {
+    const uint8_t type_id = binout_get_type_id(&bin_file, path_name);
+
+    size_t data_size, i;
+    switch (type_id) {
+    case BINOUT_TYPE_INT8:
+      /* Output as string*/
+      int8_t *datai8 = binout_read_i8(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("'");
+      i = 0;
+      while (i < data_size) {
+        printf("%c", (char)datai8[i]);
+
+        i++;
+      }
+      printf("'\n");
+      break;
+    case BINOUT_TYPE_INT16:
+      int16_t *datai16 = binout_read_i16(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%hd, ", datai16[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_INT32:
+      int32_t *datai32 = binout_read_i32(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%d, ", datai32[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_INT64:
+      int64_t *datai64 = binout_read_i64(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%lld, ", datai64[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_UINT8:
+      /* Output as string*/
+      uint8_t *datau8 = binout_read_u8(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("'");
+      i = 0;
+      while (i < data_size) {
+        printf("%c", (char)datau8[i]);
+
+        i++;
+      }
+      printf("'\n");
+      break;
+    case BINOUT_TYPE_UINT16:
+      uint16_t *datau16 = binout_read_u16(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%hu, ", datau16[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_UINT32:
+      uint32_t *datau32 = binout_read_u32(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%u, ", datau32[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_UINT64:
+      uint64_t *datau64 = binout_read_u64(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%llu, ", datau64[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_FLOAT32:
+      float *dataf32 = binout_read_f32(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%f, ", dataf32[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    case BINOUT_TYPE_FLOAT64:
+      double *dataf64 = binout_read_f64(&bin_file, path_name, &data_size);
+      if (bin_file.error_string) {
+        fprintf(stderr, "failed to read data: %s\n", bin_file.error_string);
+        binout_close(&bin_file);
+        return 1;
+      }
+
+      printf("[");
+      i = 0;
+      while (i < data_size) {
+        printf("%f, ", dataf64[i]);
+
+        i++;
+      }
+      printf("]\n");
+      break;
+    default:
+      fprintf(stderr, "\"%s\" has invalid type 0x%hhX\n", path_name, type_id);
+      break;
+    }
+
+    binout_close(&bin_file);
+    return;
   }
 
   size_t num_children;
