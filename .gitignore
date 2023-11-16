@@ -2,3 +2,6 @@
 !.gitignore
 build
 compile_commands.json
+*.exe
+ols.json
+odinfmt.json

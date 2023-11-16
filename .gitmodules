@@ -1,0 +1,3 @@
+[submodule "lib/dynareadout"]
+	path = lib/dynareadout
+	url = https://github.com/PucklaJ/dynareadout_odin.git
