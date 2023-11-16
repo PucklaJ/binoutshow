@@ -21,12 +21,11 @@ main :: proc() {
     }
 
     binout := dro.binout_open(binout_file_name)
+    defer dro.binout_close(&binout)
     if err := dro.binout_open_error(&binout); err != nil {
         fmt.eprintf("failed to open binout: %s\n", err)
-        libc.free(rawptr(err))
         os.exit(1)
     }
-    defer dro.binout_close(&binout)
 
     type_id: dro.binout_type
     timed: b32
